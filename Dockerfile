@@ -1,5 +1,19 @@
-FROM httpd:2.4
+FROM node:21-alpine AS builder
 
-COPY . /usr/local/apache2/htdocs/
+WORKDIR /app
 
-RUN chmod -R a+rx /usr/local/apache2/htdocs/
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

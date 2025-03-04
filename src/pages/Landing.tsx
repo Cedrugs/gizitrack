@@ -43,7 +43,7 @@ export default function Landing() {
                                 description: "AI menganalisis data untuk meningkatkan efisiensi distribusi."
                             }
                         ].map((feature, index) => (
-                            <div key={index} className="flex flex-col bg-white rounded-lg p-6 max-w-xs text-left gap-5 hover:shadow-lg transition-all ease-in-out duration-300">
+                            <div key={index} className="flex flex-col bg-white rounded-lg p-6 max-w-xs text-left max-md:text-center gap-5 hover:shadow-lg transition-all ease-in-out duration-300 max-md:items-center">
                                 <img src={feature.imgSrc} alt={feature.title} className="max-w-16" />
                                 <div className="flex flex-col gap-2">
                                     <h2 className="text-[#1F364A] font-medium text-lg">{feature.title}</h2>

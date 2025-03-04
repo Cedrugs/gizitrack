@@ -5,7 +5,7 @@ export default function Landing() {
     return (
         <>
             <Navbar />
-            <header className="flex flex-col relative bg-cover bg-center justify-center items-center text-center h-screen gap-12" style={{ backgroundImage: 'url("/assets/images/hero.png")' }}>
+            <header className="flex flex-col relative bg-cover bg-center justify-center items-center text-center h-screen gap-12 p-8" style={{ backgroundImage: 'url("/assets/images/hero.png")' }}>
                 <h1 className="text-5xl sm:text-7xl font-bold text-white">GiziTrack</h1>
                 <h2 className="text-3xl sm:text-4xl font-semibold text-white opacity-80">"No Child Hungry, Every Child Healthy."</h2>
                 <p className="text-white font-light max-w-lg sm:max-w-4xl"> 
@@ -55,22 +55,11 @@ export default function Landing() {
                 </div>
             </section>
             <section id="Testimoni" className="flex flex-col justify-center items-center max-md:h-auto lg:h-[100vh] py-12">
-                <div className="flex flex-col bg-white rounded-lg shadow-lg w-full max-md:h-auto lg:h-[100vh] max-w-[97%] justify-center items-center text-center gap-8 px-6 sm:px-12">
+                <div className="flex flex-col bg-white rounded-lg shadow-lg w-full max-md:h-auto lg:h-[100vh] max-w-[97%] justify-center items-center text-center gap-8 py-12 px-6 sm:px-12">
                     <div className="flex flex-col w-full gap-2">
                         <h1 className="text-[#1F364A] text-2xl sm:text-3xl font-semibold">Testimoni</h1>
                         <hr className="bg-[#E0F7FA] h-0.5 w-full" />
                     </div>
-                    {/* {[1, 2].map((i) => (
-                        <div className="flex flex-col sm:flex-row bg-[#E0F7FA] rounded-lg w-full h-auto max-w-[90%] justify-center items-center text-center mb-4" key={i}>
-                            <div className="flex flex-row rounded-lg bg-[#435C72] h-auto w-full sm:w-4/12 justify-between items-center p-4">
-                                <img src={`/assets/images/testimoni-${i}.png`} alt={`Testimoni ${i}`} className="w-1/3" />
-                                <div className="flex flex-col text-left text-white gap-2">
-                                    <h2 className="text-base">{`Testimoni ${i}`}</h2>
-                                    <p className="text-xs text-justify italic font-light">{`Testimoni ${i} content here...`}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))} */}
                     <div className="flex flex-col sm:flex-row bg-[#E0F7FA] rounded-lg w-full h-auto max-w-[98%] justify-evenly items-center text-center mb-4 gap-8 p-8">
                         {[
                             {

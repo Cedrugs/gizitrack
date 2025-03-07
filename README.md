@@ -1,54 +1,73 @@
-# React + TypeScript + Vite
+# GiziTrack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![GiziTrack Logo](https://cdn.discordapp.com/attachments/921758712597737512/1347614880206688340/image_2.png?ex=67cc77a8&is=67cb2628&hm=92077ab03329c2aad992030e67ca25c30ad1c0a9579965de25e624b34d125c28&)
 
-Currently, two official plugins are available:
+## About
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+GiziTrack is a user-friendly client-side application for the GiziTrack web app, designed to streamline the tracking of the "Makan Siang Gratis" program by the Indonesian government. It offers intuitive navigation, real-time notifications, and an interactive dashboard for efficiently tracking meal delivery to students.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **User Roles**: Supports three distinct user roles:
+  - **Kepala Sekolah (School Head)**: Oversee meal distribution, manage school information, and ensure compliance with health standards.
+  - **Murid (Student)**: Give Feedback within the app.
+  - **SPPG (Food Handler)**: Manage food inventory, log meal preparation, and report on meal distribution.
+  
+- **Meal Tracking**: Keep track of daily meal distributions and student participation.
+- **Interactive Dashboard**: Visualize meal delivery status and student feedback in real time.
+- **Real-time Notifications**: Receive updates about meal schedules and important announcements.
+- **Feedback System**: Allows students to give feedback on meals, enhancing quality and satisfaction.
+- **Reporting**: Generate reports for school heads and food handlers to assess performance and make data-driven decisions.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Technologies Used
+- React.js
+- Tailwindcss
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Installation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To get a local copy of GiziTrack, follow these simple steps:
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Cedrugs/GiziTrack.git
+   ```
+
+2. **Navigate to the project directory**:
+   ```bash
+   cd GiziTrack
+   ```
+
+3. **Install dependencies**:
+   If you are using npm:
+   ```bash
+   npm install
+   ```
+
+4. **Run the application**:
+   ```bash
+   npm run dev
+   ```
+
+## Contributing
+
+Contributions are welcome! If you would like to contribute to GiziTrack, please follow these steps:
+
+1. Fork the project.
+2. Create your feature branch (`git checkout -b feature/YourFeature`).
+3. Commit your changes (`git commit -m 'Add some feature'`).
+4. Push your branch (`git push origin feature/YourFeature`).
+5. Open a pull request.
+
+Please ensure your contributions adhere to our coding standards and include documentation where applicable.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](https://mit-license.org/) file for details.
+
+## Contact
+
+For inquiries, suggestions, or feedback, please reach out to us at [youremail@example.com](mailto:ceds.sam@gmail.com).
+
+##
+
+Thank you for your interest in GiziTrack! We hope it enhances the experience of the "Makan Siang Gratis" program for schools across Indonesia.

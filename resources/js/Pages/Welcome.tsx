@@ -1,6 +1,7 @@
 import Footer from "@/Components/Footer";
 import Navbar from "@/Components/Navbar";
 import { Head } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 
 export default function Landing() {
     return (
@@ -15,9 +16,11 @@ export default function Landing() {
                     Dengan fitur pelacakan real-time, laporan akurat, serta analisis berbasis AI, kami membantu pemerintah, 
                     penyedia makanan, dan sekolah mengelola distribusi dengan lebih efisien.
                 </p>
-                <a href="#" className="flex items-center rounded-lg w-full max-w-xs py-2 justify-center bg-[#435C72] hover:bg-opacity-80 transition-all ease-in-out duration-300" role="button">
-                    <span className="font-medium text-[#FFFFFF]">Get Started</span>
-                </a>
+                <Link href="/register" className="w-full max-w-xs py-2">
+                    <a href="#" className="flex items-center rounded-lg py-2 justify-center bg-[#435C72] hover:bg-opacity-80 transition-all ease-in-out duration-300" role="button">
+                        <span className="font-medium text-[#FFFFFF]">Get Started</span>
+                    </a>
+                </Link>
             </header>
             <section id="Fitur" className="flex flex-col justify-center items-center h-auto lg:h-[100vh] py-12">
                 <div className="flex flex-col bg-white rounded-lg shadow-lg w-full h-auto lg:h-[100vh] max-w-[97%] justify-center items-center text-center gap-8 py-12">

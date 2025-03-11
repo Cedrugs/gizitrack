@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -54,7 +53,6 @@ class LoginRequest extends FormRequest
         $user = User::where('email', $this->input('email'))->first();
     
         if (!$user || $user->verified == false) {
-            Log::info('User auth attempt detected', ['user' => $user]);
             RateLimiter::hit($this->throttleKey());
     
             throw ValidationException::withMessages([

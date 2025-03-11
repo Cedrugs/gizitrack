@@ -16,6 +16,7 @@ class Supplier extends Model
         'name',
         'address',
         'user_id',
+        'city',
     ];
 
     public function user(): BelongsTo {

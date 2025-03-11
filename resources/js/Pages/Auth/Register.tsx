@@ -12,10 +12,22 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        role: '',
+        organization_name: '',
+        organization_address: '',
+        organization_city: '',
     });
+
+    const roles = [
+        {value: '', label: 'Select your role', disabled: true},
+        {value: 'sppg', label: 'Satuan Pelayanan Pemenuhan Gizi (SPPG)'},
+        {value: 'kepala_sekolah', label: 'Kepala Sekolah'}
+    ];
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        console.log(data);
 
         post(route('register'), {
             onFinish: () => reset('password', 'password_confirmation'),
@@ -60,6 +72,70 @@ export default function Register() {
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="role" value="Role" />
+                    <select
+                        id="role"
+                        name="role"
+                        value={data.role}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        onChange={(e) => {
+                            setData('role', e.target.value);
+                            setData('organization_name', '');
+                            setData('organization_address', '');
+                        }}
+                        required
+                    >
+                        {roles.map((role) => (
+                            <option key={role.value} value={role.value} disabled={role.disabled}>
+                                {role.label}
+                            </option>
+                        ))}
+                    </select>
+                    <InputError message={errors.role} className="mt-2" />
+                </div>
+
+                {data.role != "" && (
+                    <>
+                        <div className="mt-4">
+                            <InputLabel htmlFor="organization_name" value={`Nama ${data.role === 'sppg' ? 'SPPG' : 'Sekolah'}`} />
+                            <TextInput
+                                id="organization_name"
+                                name="organization_name"
+                                value={data.organization_name}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('organization_name', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.organization_name} className="mt-2" />
+                        </div>
+                        <div className="mt-4">
+                            <InputLabel htmlFor="organization_city" value={`Kota ${data.role === 'sppg' ? 'SPPG' : 'Sekolah'}`} />
+                            <TextInput
+                                id="organization_city"
+                                name="organization_city"
+                                value={data.organization_city}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('organization_city', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.organization_city} className="mt-2" />
+                        </div>
+                        <div className="mt-4">
+                            <InputLabel htmlFor="organization_address" value={`Alamat ${data.role === 'sppg' ? 'SPPG' : 'Sekolah'}`} />
+                            <TextInput
+                                id="organization_address"
+                                name="organization_address"
+                                value={data.organization_address}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('organization_address', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.organization_address} className="mt-2" />
+                        </div>
+                    </>
+                )}
 
                 <div className="mt-4">
                     <InputLabel htmlFor="password" value="Password" />

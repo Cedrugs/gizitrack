@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

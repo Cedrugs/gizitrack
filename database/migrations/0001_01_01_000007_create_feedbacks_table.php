@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('distribution_id')->constrained()->cascadeOnDelete();
+            $table->enum('rating', ['baik', 'buruk', 'cukup']);
+            $table->boolean('on_time');
             $table->string('feedback');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

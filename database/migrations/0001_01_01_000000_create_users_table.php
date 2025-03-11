@@ -18,6 +18,8 @@ return new class extends Migration
             $table->enum('role', ['pemerintah', 'sppg', 'kepala_sekolah']);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('verified');
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });

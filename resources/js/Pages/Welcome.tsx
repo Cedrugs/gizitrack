@@ -2,12 +2,15 @@ import Footer from "@/Components/Footer";
 import Navbar from "@/Components/Navbar";
 import { Head } from "@inertiajs/react";
 import { Link } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 
 export default function Landing() {
+    const user = usePage().props.auth.user;
+
     return (
         <>
             <Head title="Welcome"/>
-            <Navbar />
+            <Navbar user={user}/>
             <header className="flex flex-col relative bg-cover bg-center justify-center items-center text-center h-screen gap-12 p-8" style={{ backgroundImage: 'url("/assets/images/hero.png")' }}>
                 <h1 className="text-5xl sm:text-7xl font-bold text-white">GiziTrack</h1>
                 <h2 className="text-3xl sm:text-4xl font-semibold text-white opacity-80">"No Child Hungry, Every Child Healthy."</h2>

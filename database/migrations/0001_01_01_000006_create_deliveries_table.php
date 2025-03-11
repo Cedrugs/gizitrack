@@ -16,9 +16,11 @@ return new class extends Migration
             $table->foreignId('distribution_id')->constrained()->cascadeOnDelete();
             $table->string('menu');
             $table->integer('num_portion');
+            $table->float('price');
             $table->date('date_sent');
             $table->time('time_sent');
             $table->enum('delivery_status', ['proses', 'perjalanan', 'terkirim']);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

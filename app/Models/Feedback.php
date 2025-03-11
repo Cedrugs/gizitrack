@@ -14,7 +14,9 @@ class Feedback extends Model
 
     protected $fillable = [
         'distribution_id',
-        'feedback'
+        'feedback',
+        'rating',
+        'on_time',
     ];
 
     public function distribution(): BelongsTo {

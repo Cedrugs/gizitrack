@@ -16,6 +16,7 @@ class School extends Model
         'name',
         'address',
         'user_id',
+        'city',
     ];
 
     public function distributions(): HasMany {

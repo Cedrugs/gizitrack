@@ -13,6 +13,7 @@ class Delivery extends Model
 
     protected $fillable = [
         'distribution_id',
+        'price',
         'menu',
         'num_portion',
         'date_sent',

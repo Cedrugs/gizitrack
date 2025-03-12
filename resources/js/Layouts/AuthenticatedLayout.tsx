@@ -1,21 +1,26 @@
 import Footer from '@/Components/Footer';
 import Navbar from '@/Components/Navbar';
-import { usePage } from '@inertiajs/react';
+import { User } from '@/types/user';
 import { PropsWithChildren, ReactNode} from 'react';
+
+interface AuthenticatedProps {
+    header?: ReactNode;
+    user: User
+}
 
 export default function Authenticated({
     header,
     children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    user,
+}: PropsWithChildren<AuthenticatedProps>) {
 
     return (
-        <div className="h-full bg-gray-100">
+        <div className="h-full">
             <Navbar user={user}/>
 
             {header && (
-                <header className="bg-white shadow">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <header className="flex justify-center">
+                    <div className="mx-auto px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
                 </header>

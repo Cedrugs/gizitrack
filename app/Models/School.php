@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class School extends Model
@@ -20,7 +21,7 @@ class School extends Model
     ];
 
     public function distributions(): HasMany {
-        return $this->hasMany(Distribution::class);
+        return $this->hasMany(Distribution::class, 'school_id');
     }
 
     public function user(): BelongsTo {

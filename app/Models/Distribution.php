@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Distribution extends Model
@@ -25,11 +25,11 @@ class Distribution extends Model
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
-    public function deliveries(): HasMany {
-        return $this->hasMany(Delivery::class);
+    public function delivery(): HasOne {
+        return $this->hasOne(Delivery::class, 'distribution_id');
     }
 
-    public function feedbacks(): HasMany {
-        return $this->hasMany(Feedback::class);
+    public function feedback(): HasOne {
+        return $this->hasOne(Feedback::class, 'distribution_id');
     }
 }

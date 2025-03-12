@@ -1,12 +1,14 @@
-import Footer from '@/Components/Footer';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
 export default function Dashboard() {
+    const user = usePage().props.auth.user;
+
     return (
-        <AuthenticatedLayout
+        <AuthenticatedLayout 
+            user={user}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="text-3xl font-semibold leading-tight text-[#27445D]">
                     Dashboard
                 </h2>
             }

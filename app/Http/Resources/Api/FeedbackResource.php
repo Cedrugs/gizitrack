@@ -21,7 +21,8 @@ class FeedbackResource extends JsonResource
             'num_portion' => $this->num_portion,
             'rating' => $this->rating,
             'on_time' => $this->on_time,
-            'feedback' => $this->feedback
+            'lateness_time' => $this->lateness_time,
+            'message' => $this->message
         ];
     }
 }

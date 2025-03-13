@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('rating', ['baik', 'buruk', 'cukup']);
             $table->boolean('on_time');
             $table->string('message');
+            $table->integer('lateness_time')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

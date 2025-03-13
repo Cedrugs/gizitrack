@@ -81,7 +81,7 @@ const Calendar = ({ currentYear, data }: { currentYear: number, data: School | n
                                 }
 
                                 return (
-                                    <div key={day} className={`text-center rounded cursor-pointer h-10 ${colorClass}`}>
+                                    <div key={day} className={`text-center rounded cursor-pointer h-10 ${colorClass} pt-2`}>
                                         {day}
                                     </div>
                                 );

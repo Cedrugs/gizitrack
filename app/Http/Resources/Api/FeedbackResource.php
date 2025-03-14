@@ -22,6 +22,7 @@ class FeedbackResource extends JsonResource
             'rating' => $this->rating,
             'on_time' => $this->on_time,
             'lateness_time' => $this->lateness_time,
+            'problem' => $this->problem,
             'message' => $this->message
         ];
     }

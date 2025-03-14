@@ -35,6 +35,7 @@ interface Feedback {
     lateness_time: number;
     rating: string;
     message: string;
+    problem: string;
 }
 
 interface Supplier {

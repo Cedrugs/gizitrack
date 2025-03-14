@@ -21,6 +21,7 @@ class Feedback extends Model
         'rating',
         'on_time',
         'lateness_time',
+        'problem'
     ];
 
     public function distribution(): BelongsTo {

@@ -15,7 +15,7 @@ export default function Edit({
         <AuthenticatedLayout user={user}
             header={
                 <h2 className="text-3xl font-semibold leading-tight text-[#27445D]">
-                    Dashboard                    
+                    Profile                    
                 </h2>
             }
         >

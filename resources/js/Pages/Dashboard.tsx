@@ -3,6 +3,13 @@ import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import apiClient from '@/Services/apiService';
 import { School } from '@/types/types';
+import Modal from '@/Components/Modal';
+import TextInput from '@/Components/TextInput';
+import SecondaryButton from '@/Components/SecondaryButton';
+import InputLabel from '@/Components/InputLabel';
+import NumberInput from '@/Components/NumberInput';
+import RadioInput from '@/Components/RadioInput';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -67,8 +74,8 @@ const Calendar = ({ currentYear, data }: { currentYear: number, data: School | n
                                         const dateSent = new Date(distribution.delivery.date_sent);
                                         const sentMonth = dateSent.getMonth();
                                         const sentDay = dateSent.getDate();
-                                        const isOnTime = distribution.feedback.on_time;
-                                        return { sentMonth, sentDay, isOnTime };
+                                        const isProblem = distribution.feedback.problem;
+                                        return { sentMonth, sentDay, isProblem };
                                     })
                                     .filter(({ sentMonth }) => sentMonth === index);
 
@@ -76,7 +83,7 @@ const Calendar = ({ currentYear, data }: { currentYear: number, data: School | n
                                 
                                 let colorClass = '';
                                 if (isSent) {
-                                    const isCurrentDayOnTime = sentDetails?.some(({ sentDay, isOnTime }) => sentDay === day && isOnTime);
+                                    const isCurrentDayOnTime = sentDetails?.some(({ sentDay, isProblem }) => sentDay === day && isProblem == "");
                                     colorClass = isCurrentDayOnTime ? 'bg-[#8DEE9F]' : 'bg-[#D29A9B]';
                                 }
 
@@ -95,9 +102,41 @@ const Calendar = ({ currentYear, data }: { currentYear: number, data: School | n
 };
 
 export default function Dashboard() {
+    const [menu, setMenu] = useState('');
+    const [numPortion, setNumPortion] = useState(1);
+    const [onTime, setOnTime] = useState(true);
+    const [latenessTime, setLatenessTime] = useState(1);
+    const [isProblem, setIsProblem] = useState(false);
+    const [problem, setProblem] = useState('');
+    const [message, setMessage] = useState('');
+    const [rating, setRating] = useState('');
+
     const user = usePage().props.auth.user;
     const [data, setData] = useState<School | null>(null);
     const [loading, setLoading] = useState(true);
+    const [addingFeedback, setAddingFeedback] = useState(false);
+
+    let distributionId: number | null = null;
+
+    const reset = () => {
+        setMenu('');
+        setNumPortion(1);
+        setOnTime(true);
+        setLatenessTime(1);
+        setIsProblem(false);
+        setProblem('');
+        setRating('');
+        setMessage('');
+    };
+
+    const closeModal = () => {
+        setAddingFeedback(false);
+        reset();
+    };
+
+    const openModal = () => {
+        setAddingFeedback(true);
+    };
 
     useEffect(() => {
         apiClient
@@ -106,11 +145,49 @@ export default function Dashboard() {
                 setData(response.data.data);
                 setLoading(false);
             });
-    }, []);
+    }, [user.id]);
 
     if (loading) {
         return <p>Loading...</p>;
     }
+
+    const isTodayDeliveryAvailable = () => {
+        const today = new Date().toISOString().split('T')[0];
+        return data?.distributions.some(distribution => {
+            const deliveryDate = distribution.delivery.date_sent;
+            if (deliveryDate === today && distribution.feedback === null) {
+                distributionId = distribution.id;
+                return true;
+            } else {
+                return false;
+            }
+        });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!isTodayDeliveryAvailable()) {
+            alert("Today's delivery data is not available.");
+            return;
+        }
+
+        const data = {
+            'menu': menu,
+            'num_portion': numPortion,
+            'distribution_id': distributionId,
+            'rating': rating,
+            'on_time': onTime,
+            'message': message || "",
+            'lateness_time': latenessTime,
+            'problem': problem || "",
+        }
+
+        const response = apiClient.post('http://127.0.0.1:8000/api/school', data);
+        closeModal();
+
+        alert("Success!");
+    };
 
     return (
         <AuthenticatedLayout 
@@ -131,17 +208,18 @@ export default function Dashboard() {
                             placeholder="Search"
                             className="w-2/3 p-2 rounded-lg bg-[#435C72] placeholder-white text-white"
                         />
-                        <button className="w-1/3 bg-[#435C72] text-white p-2 rounded-lg">Add</button>
+                        <button className="w-1/3 bg-[#435C72] text-white p-2 rounded-lg disabled:cursor-not-allowed disabled:opacity-60" onClick={openModal} disabled={!isTodayDeliveryAvailable()}>
+                            Add
+                        </button>
                     </div>
                     <div className="space-y-4 overflow-y-auto max-h-[80vh] drop-shadow-md">
-                        {data?.distributions.map(distribution => {
-
+                        {data?.distributions.reverse().map(distribution => {
                             if (!distribution.feedback) return null;
 
                             const date = new Date(distribution.delivery.date_sent);
 
                             return (
-                                <div className={`rounded-lg flex shadow-md ${distribution.feedback.on_time ? 'bg-[#8DEE9F]' : 'bg-[#D29A9B]'}`}>
+                                <div className={`rounded-lg flex shadow-md ${distribution.feedback.problem == "" ? 'bg-[#8DEE9F]' : 'bg-[#D29A9B]'}`}>
                                     <div className="w-1/3 bg-[#435C72] text-white text-center text-sm flex justify-center items-center flex-col rounded-lg">
                                         <div className="font-bold text-lg">{date.getDate()}</div>
                                         <div>{monthNames[date.getMonth()].slice(0, 3)} {date.getFullYear()}</div>
@@ -160,7 +238,7 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             )
-                    })}
+                        })}
                     </div>
                 </div>
                 <div className="w-2/3 bg-white p-4 rounded-lg shadow-lg">
@@ -182,6 +260,94 @@ export default function Dashboard() {
                     <Calendar currentYear={2025} data={data} />
                 </div>
             </main>
+            <Modal show={addingFeedback} onClose={closeModal}>
+                <form className="p-6" onSubmit={handleSubmit}>
+                    <h2 className="text-lg font-medium text-gray-900">
+                        Add new Feedback
+                    </h2>
+                    <div className="mt-4">
+                        <InputLabel htmlFor="menu" value="Menu makanan yang diterima" />
+                        <TextInput id="menu" type="text" name="menu" className="mt-1 block w-3/4" isFocused placeholder="Nasi Uduk" onChange={(e) => setMenu(e.target.value)} value={menu}/>
+                    </div>
+                    <div className="mt-4">
+                        <InputLabel htmlFor="numPortion" value="Jumlah porsi yang diterima" />
+                        <NumberInput id='numPortion' name='numPortion' value={numPortion} onChange={(value) => setNumPortion(Number(value))}/>
+                    </div>
+                    <div className="mt-4">
+                        <InputLabel htmlFor="numPortion" value="Apakah makanan sampai tepat waktu?" />
+                        <RadioInput
+                            label=''
+                            options={[
+                                { label: 'Tepat Waktu', value: '1' },
+                                { label: 'Tidak Tepat Waktu', value: '0' }
+                            ]}
+                            name="onTime"
+                            value={onTime ? '1' : '0'}
+                            onChange={(value) => setOnTime(value === '1')}
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <InputLabel htmlFor="latenessTime" value="Masukkan keterlambatan makanan dalam menit" />
+                        <NumberInput id='latenessTime' name='latenessTime' value={latenessTime} onChange={(value) => setLatenessTime(Number(value))} min={0}/>
+                    </div>
+                    <div className="mt-4">
+                            <InputLabel htmlFor="isProblem" value="Apakah ada masalah dalam makanan?" />
+                            <RadioInput
+                                label=''
+                                options={[
+                                    { label: 'Ya', value: '1' },
+                                    { label: 'Tidak', value: '0' }
+                                ]}
+                                name="isProblem"
+                                value={isProblem ? '1' : '0'}
+                                onChange={(value) => setIsProblem(value === '1')}
+                            />
+                    </div>
+                    {isProblem && (
+                        <div className="mt-4">
+                            <InputLabel htmlFor="isProblem" value="Apakah ada masalah dalam makanan?" />
+                            <RadioInput
+                                label=''
+                                options={[
+                                    { label: 'Porsi Kurang', value: 'Porsi Kurang' },
+                                    { label: 'Makanan Tidak Sesuai', value: 'Makanan Tidak Sesuai' },
+                                    { label: 'Makanan Basi', value: 'Makanan Basi' }
+                                ]}
+                                name="problem"
+                                value={problem}
+                                onChange={(value) => setProblem(value)}
+                            />
+                        </div>
+                    )}
+                    <div className="mt-4">
+                        <InputLabel htmlFor="rating" value="Apakah ada masalah dalam makanan?" />
+                        <RadioInput
+                            label=''
+                            options={[
+                                { label: 'Baik', value: 'baik' },
+                                { label: 'Cukup', value: 'cukup' },
+                                { label: 'Buruk', value: 'buruk' }
+                            ]}
+                            name="rating"
+                            value={rating}
+                            onChange={(value) => setRating(value)}
+                        />
+                    </div>
+
+                    <div className="mt-4">
+                        <TextInput id="message" type="text" name="message" className="mt-1 block w-3/4" isFocused placeholder="Masukkan saran dan kritik" onChange={(e) => setMessage(e.target.value)} value={message}/>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-4">
+                        <SecondaryButton onClick={closeModal}>
+                            Cancel
+                        </SecondaryButton>
+                        <PrimaryButton type='submit' disabled={!isTodayDeliveryAvailable()}>
+                            Submit
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

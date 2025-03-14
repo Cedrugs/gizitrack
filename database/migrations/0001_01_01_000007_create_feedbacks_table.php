@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('on_time');
             $table->string('message');
             $table->integer('lateness_time')->nullable();
+            $table->string('problem');
             $table->softDeletes();
             $table->timestamps();
         });

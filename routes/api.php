@@ -11,8 +11,7 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('api_key')->group(function () {
     Route::get('/school/{school:user_id}', [SchoolController::class, 'show']);
+    Route::post('/school', [SchoolController::class, 'store']);
 
     Route::get('/supplier/{supplier:user_id}', [SupplierController::class, 'show']);
 });
-
-

@@ -14,4 +14,5 @@ Route::middleware('api_key')->group(function () {
     Route::post('/school', [SchoolController::class, 'store']);
 
     Route::get('/supplier/{supplier:user_id}', [SupplierController::class, 'show']);
+    Route::post('/supplier', [SupplierController::class, 'store']);
 });

@@ -16,6 +16,12 @@ class DistributionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'school' => $this->whenLoaded('school', function () {
+                return [
+                    'id' => $this->school->id,
+                    'name' => $this->school->name,
+                ];
+            }),
             'supplier' => $this->whenLoaded('supplier', function () {
                 return [
                     'id' => $this->supplier->id,

@@ -6,8 +6,14 @@ export interface School {
     distributions: Distribution[];
 }
 
+interface DistributionSchool {
+    id: number;
+    name: string;
+}
+
 interface Distribution {
     id: number;
+    school: DistributionSchool;
     supplier: Supplier;
     delivery: Delivery;
     feedback: Feedback;
@@ -31,7 +37,7 @@ interface Feedback {
     menu: string;
     num_portion: number;
     price: float;
-    on_time: boolean;
+    on_time: number;
     lateness_time: number;
     rating: string;
     message: string;
@@ -43,4 +49,6 @@ interface Supplier {
     address: string;
     city: string;
     name: string;
+    distributions: Distribution[];
+    eligible_schools: School[] | null;
 }

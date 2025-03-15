@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import apiClient from '@/Services/apiService';
-import { School } from '@/types/types';
+import { School, Supplier } from '@/types/types';
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -10,6 +10,10 @@ import InputLabel from '@/Components/InputLabel';
 import NumberInput from '@/Components/NumberInput';
 import RadioInput from '@/Components/RadioInput';
 import PrimaryButton from '@/Components/PrimaryButton';
+import { Pie, Line } from 'react-chartjs-2';
+import { Chart, ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js';
+
+Chart.register(ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale);
 
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -103,10 +107,11 @@ const Calendar = ({ currentYear, data }: { currentYear: number, data: School | n
 
 export default function Dashboard() {
     const user = usePage().props.auth.user;
-    const [data, setData] = useState<School | null>(null);
     const [loading, setLoading] = useState(true);
     
     if (user.role == 'kepala_sekolah') {
+        const [data, setData] = useState<School | null>(null);
+
         const [menu, setMenu] = useState('');
         const [numPortion, setNumPortion] = useState(1);
         const [onTime, setOnTime] = useState(true);
@@ -353,6 +358,129 @@ export default function Dashboard() {
             </AuthenticatedLayout>
         );
     } else if (user.role == 'sppg') {
+        const user = usePage().props.auth.user;
+        const [loading, setLoading] = useState(true);
+        const [data, setData] = useState<Supplier | null>(null);
+        const [formData, setFormData] = useState<any[]>([]);
+
+        useEffect(() => {
+            apiClient
+                .get(`/api/supplier/${user.id}`)
+                .then((response) => {
+                    setData(response.data.data);
+                    const initialFormData = response.data.data.eligible_schools.map((school: School) => ({
+                        menu: '',
+                        num_portion: 1,
+                        date_sent: '',
+                        time_sent: '',
+                        price: 1,
+                        school_id: school.id,
+                        supplier_id: response.data.data.id,
+                    }));
+                    setFormData(initialFormData);
+                    setLoading(false);
+                });
+        }, [user.id]);
+
+        const handleInputChange = (index: number, key: string, value: any) => {
+            setFormData((prevData) => {
+                const newData = [...prevData];
+                newData[index] = {
+                    ...newData[index],
+                    [key]: value,
+                };
+                return newData;
+            });
+        };
+
+        const handleSubmit = (index: number) => {
+            const currentData = formData[index];
+            console.log("Submitting form data for school index", index, currentData);
+            
+            apiClient.post('http://localhost:8000/api/supplier', currentData);
+        };
+
+        function getProblemCounts(data: Supplier | null) {
+            const problemCounts: { [key: string]: number } = {};
+            
+            data?.distributions.forEach(distribution => {
+                if (distribution.feedback != null) {
+                    const problem = distribution.feedback.problem;
+                    if (problem) {
+                        problemCounts[problem] = (problemCounts[problem] || 0) + 1;
+                    }
+                }
+            });
+        
+            return problemCounts;
+        }
+
+        const getLatenessCounts = (supplierData: Supplier | null) => {
+            const counts = Array(12).fill(0);
+            
+            supplierData?.distributions.forEach(distribution => {
+                const feedback = distribution.feedback;
+                const month = new Date(distribution.delivery.date_sent).getMonth();
+                if (feedback?.on_time === 0) {
+                    counts[month] += 1;
+                }
+            });
+            
+            return counts;
+        };
+
+        const latenessCounts = getLatenessCounts(data);
+
+        const problemCounts = getProblemCounts(data);
+
+        const options = {
+            scales: {
+                y: {
+                    min: 0,
+                    max: Math.max(2, Math.max(...latenessCounts) + 1),
+                    ticks: {
+                        stepSize: 1,
+                    },
+                },
+            }
+        };
+
+        const pieChartData = {
+            labels: Object.keys(problemCounts),
+            datasets: [{
+                data: Object.values(problemCounts),
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#FF9F40',
+                ],
+                hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#FF9F40',
+                ],
+            }],
+        };
+
+        const lineChartData = {
+            labels: [
+                'January', 'February', 'March', 'April', 'May', 
+                'June', 'July', 'August', 'September', 'October', 
+                'November', 'December'
+            ],
+            datasets: [{
+                label: 'Lateness Count',
+                data: latenessCounts,
+                fill: false,
+                backgroundColor: '#36A2EB',
+                borderColor: '#36A2EB',
+                tension: 0.1,
+                pointRadius: 0.5,
+            }],
+        };
+
         return (
             <AuthenticatedLayout 
                 user={user}
@@ -363,7 +491,146 @@ export default function Dashboard() {
                 }
             >
                 <Head title="Dashboard" />
-                <main></main>
+                <main className="p-4 space-y-4 max-w-6xl mx-auto">
+                        <div className="bg-white p-4 rounded-lg shadow-lg">
+                        <h2 className="font-bold text-xl text-gray-800">
+                            Lateness Count per Month ({new Date().getFullYear()})
+                        </h2>
+                        <Line data={lineChartData} options={options} height={50}/>
+                    </div>
+                    <div className="flex space-x-4">
+                        <div className="w-1/3 bg-white p-4 rounded-lg shadow-lg">
+                            <h2 className="font-bold text-xl text-gray-800 mb-2">
+                                Notifikasi Masalah
+                            </h2>
+                            <Pie data={pieChartData} />
+                        </div>
+                        <div className="w-2/3 bg-white p-4 rounded-lg shadow-lg">
+                            <h2 className="font-bold text-xl text-gray-800 mb-2">
+                            Notes untuk Kepala Sekolah
+                            </h2>
+                            <div className="flex space-x-4 overflow-x-auto max-w-full whitespace-nowrap">
+                                {data?.eligible_schools?.map((school, index) => (
+                                    <div key={school.id} className="min-w-[300px] bg-white shadow-lg p-4 rounded-lg border border-gray-300">
+                                        <h3 className="text-lg font-bold text-center mb-4">{school.name}</h3>
+                                        <div className="mb-4 w-full">
+                                            <label className="block mb-2">Masukkan Menu yang akan dikirim</label>
+                                            <div className="flex items-center space-x-2 w-full">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter a menu"
+                                                    value={formData[index]?.menu || ''}
+                                                    onChange={(e) => handleInputChange(index, 'menu', e.target.value)}
+                                                    className="flex-grow p-2 border rounded"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="block mb-2">Total makanan yang dikirim</label>
+                                            <div className="flex items-center space-x-2 number-box">
+                                                <input
+                                                    type="number"
+                                                    value={formData[index]?.num_portion || 1}
+                                                    onChange={(e) => handleInputChange(index, 'num_portion', parseInt(e.target.value))}
+                                                    className="w-16 p-2 border rounded"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="block mb-2">Tanggal & Jam Perkiraan Tiba</label>
+                                            <div className="flex space-x-2">
+                                                <input
+                                                    type="date"
+                                                    value={formData[index]?.date_sent || ''}
+                                                    onChange={(e) => handleInputChange(index, 'date_sent', e.target.value)}
+                                                    className="p-2 border rounded"
+                                                />
+                                                <input
+                                                    type="time"
+                                                    value={formData[index]?.time_sent || ''}
+                                                    onChange={(e) => handleInputChange(index, 'time_sent', e.target.value)}
+                                                    className="p-2 border rounded"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="block mb-2">Total Harga Makanan</label>
+                                            <div className="flex items-center space-x-2 number-box">
+                                                <input
+                                                    type="number"
+                                                    value={formData[index]?.price || 1}
+                                                    onChange={(e) => handleInputChange(index, 'price', parseInt(e.target.value))}
+                                                    className="w-20 p-2 border rounded"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-center mt-6">
+                                            <button
+                                                onClick={() => handleSubmit(index)}
+                                                className="bg-gray-800 text-white p-2 rounded-lg"
+                                            >
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-lg overflow-y-auto max-h-96">
+                        <table className="w-full table-fixed text-left">
+                            <thead className="bg-gray-200 sticky top-0 z-10">
+                            <tr>
+                                <th className="p-2 border-2 border-black">No.</th>
+                                <th className="p-2 border-2 border-black">Menu Name</th>
+                                <th className="p-2 border-2 border-black">Destination</th>
+                                <th className="p-2 border-2 border-black">Portion</th>
+                                <th className="p-2 border-2 border-black">Date</th>
+                                <th className="p-2 border-2 border-black">Price</th>
+                                <th className="p-2 border-2 border-black">Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {data?.distributions?.map((distribution, index) => {
+                                type DeliveryStatus = 'proses' | 'perjalanan' | 'terkirim';
+                                
+                                const deliveryStatus: DeliveryStatus = distribution.delivery.delivery_status as DeliveryStatus;
+
+                                const statusColor: Record<DeliveryStatus, string> = {
+                                    'proses': '#F90002',
+                                    'perjalanan': '#B77D36',
+                                    'terkirim': '#32A734'
+                                };
+
+                                const color = statusColor[deliveryStatus] || '#000000';
+
+                                return (
+                                    <tr className="odd:bg-white even:bg-gray-100" key={index}>
+                                        <td className="p-2 border-2 border-black">{index + 1}</td>
+                                        <td className="p-2 border-2 border-black">{distribution.delivery.menu}</td>
+                                        <td className="p-2 border-2 border-black">{distribution.school.name}</td>
+                                        <td className="p-2 border-2 border-black">{distribution.delivery.num_portion}</td>
+                                        <td className="p-2 border-2 border-black">{distribution.delivery.date_sent}</td>
+                                        <td className="p-2 border-2 border-black">Rp{distribution.delivery.price.toLocaleString('id')}</td>
+                                        <td 
+                                            className="p-2 border-2 border-black"
+                                            style={{ color }}
+                                        >
+                                            {deliveryStatus[0].toUpperCase() + deliveryStatus.slice(1)}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </AuthenticatedLayout>
+        )
+    } else if (user.role == 'pemerintah') {
+        return (
+            <AuthenticatedLayout user={user}>
+                <h1>Hello</h1>
             </AuthenticatedLayout>
         )
     }

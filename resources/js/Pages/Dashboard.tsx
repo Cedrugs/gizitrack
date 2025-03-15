@@ -10,10 +10,10 @@ import InputLabel from '@/Components/InputLabel';
 import NumberInput from '@/Components/NumberInput';
 import RadioInput from '@/Components/RadioInput';
 import PrimaryButton from '@/Components/PrimaryButton';
-import { Pie, Line } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js';
+import { Pie, Line, Bar } from 'react-chartjs-2';
+import { Chart, ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale, BarElement, Filler } from 'chart.js';
 
-Chart.register(ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale);
+Chart.register(ArcElement, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale, Filler, BarElement);
 
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -24,6 +24,18 @@ interface MonthData {
     name: string;
     days: number[];
     firstDayOfMonth: number;
+}
+
+interface Delivery {
+    id: number;
+    price: number;
+    date_sent: string;
+}
+
+interface Feedback {
+    id: number;
+    rating: string;
+    on_time: number;
 }
 
 const Calendar = ({ currentYear, data }: { currentYear: number, data: School | null}) => {
@@ -627,12 +639,135 @@ export default function Dashboard() {
                 </main>
             </AuthenticatedLayout>
         )
-    } else if (user.role == 'pemerintah') {
-        return (
-            <AuthenticatedLayout user={user}>
-                <h1>Hello</h1>
-            </AuthenticatedLayout>
-        )
-    }
+    } else if (user.role === 'pemerintah') {
+        const [loading, setLoading] = useState(true);
+        const [monthlySpending, setMonthlySpending] = useState<number[]>(Array(12).fill(0));
+        const [feedbackCounts, setFeedbackCounts] = useState<{ baik: number; cukup: number; buruk: number }>({ baik: 0, cukup: 0, buruk: 0 });
 
+        const calculateLatenessPercentage = (feedbacks: Feedback[]) => {
+            const totalFeedbacks = feedbacks.length;
+            const onTimeCount = feedbacks.filter(feedback => feedback.on_time === 1).length;
+            const lateCount = feedbacks.filter(feedback => feedback.on_time === 0).length;
+        
+            return {
+                onTimePercentage: totalFeedbacks ? (onTimeCount / totalFeedbacks) * 100 : 0,
+                latePercentage: totalFeedbacks ? (lateCount / totalFeedbacks) * 100 : 0,
+            };
+        };
+
+        const calculateMonthlySpending = (deliveries: Delivery[]) => {
+            const spending = Array(12).fill(0);
+            deliveries.forEach(delivery => {
+                const month = new Date(delivery.date_sent).getMonth(); // 0-11
+                spending[month] += delivery.price;
+            });
+            setMonthlySpending(spending);
+        };
+
+        const countFeedbacks = (feedbacks: Feedback[]) => {
+            const counts = { baik: 0, cukup: 0, buruk: 0 };
+            feedbacks.forEach(feedback => {
+                if (feedback.rating === "baik") counts.baik++;
+                else if (feedback.rating === "cukup") counts.cukup++;
+                else if (feedback.rating === "buruk") counts.buruk++;
+            });
+            setFeedbackCounts(counts);
+        };
+
+        useEffect(() => {
+            apiClient
+                .get(`/api/pemerintah`)
+                .then((response) => {
+                    const feedbacks = response.data.data.feedbacks;
+                    calculateMonthlySpending(response.data.data.deliveries);
+                    countFeedbacks(feedbacks);
+
+                    const { onTimePercentage, latePercentage } = calculateLatenessPercentage(feedbacks);
+                    setLatenessData({ onTimePercentage, latePercentage }); // Assuming setLatenessData is a useState hook for storing these values
+        
+                    setLoading(false);
+                });
+        }, [user.id]);
+
+        const [latenessData, setLatenessData] = useState<{ onTimePercentage: number; latePercentage: number }>({ onTimePercentage: 0, latePercentage: 0 });
+
+        const latenessChartData = {
+            labels: ['On Time', 'Late'],
+            datasets: [{
+                label: 'Lateness Percentage',
+                data: [latenessData.onTimePercentage, latenessData.latePercentage],
+                backgroundColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                hoverBackgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)'],
+            }],
+        };
+
+        if (loading) {
+            return <p>Loading...</p>;
+        }
+
+        const chartData = {
+            labels: [
+                'January', 'February', 'March', 'April', 'May', 
+                'June', 'July', 'August', 'September', 'October', 
+                'November', 'December'
+            ],
+            datasets: [{
+                label: 'Total Pengeluaran',
+                data: monthlySpending.map(amount => amount / 1000000),
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                tension: 0.1,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+            }],
+        };
+
+        const feedbackChartData = {
+            labels: ['Positive', 'Neutral', 'Negative'],
+            datasets: [{
+                label: 'Feedback Count',
+                data: [feedbackCounts.baik, feedbackCounts.cukup, feedbackCounts.buruk],
+                backgroundColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)', 'rgba(255, 99, 132, 1)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1,
+                barThickness: 40
+            }],
+        };
+
+        return (
+            <AuthenticatedLayout 
+                user={user}
+                header={
+                    <h2 className="text-3xl font-semibold leading-tight text-[#27445D]">
+                        Pemerintah
+                    </h2>
+                }
+            >
+                <Head title="Dashboard" />
+                <main className="max-w-6xl mx-auto p-4 space-y-4">
+                    <div className="flex justify-center space-x-4 w-full max-w-6xl">
+                        <div className="bg-white rounded-lg shadow-lg p-4 w-1/2">
+                            <h2 className="text-[#27445D] text-xl font-bold mb-4">
+                                Ketepatan Waktu Pengiriman
+                            </h2>
+                            <Bar data={latenessChartData} options={{ scales: { y: { beginAtZero: true } } }} />
+                        </div>
+                        <div className="bg-white rounded-lg shadow-lg p-4 w-1/2">
+                            <h2 className="text-[#27445D] text-xl font-bold mb-4">
+                                Analisis Sentiment Kepala Sekolah
+                            </h2>
+                            <Bar data={feedbackChartData} />
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-6xl">
+                        <h2 className="text-[#27445D] text-xl font-bold mb-4">
+                            Total Pengeluaran/Bulan (Juta Rupiah)
+                        </h2>
+                        <Line data={chartData} />
+                    </div>
+                </main>
+            </AuthenticatedLayout>
+        );
+    }
 }

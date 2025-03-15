@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\PemerintahController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SupplierController;
 use Illuminate\Http\Request;
@@ -15,4 +16,6 @@ Route::middleware('api_key')->group(function () {
 
     Route::get('/supplier/{supplier:user_id}', [SupplierController::class, 'show']);
     Route::post('/supplier', [SupplierController::class, 'store']);
+
+    Route::get('/pemerintah', [PemerintahController::class, 'show']);
 });

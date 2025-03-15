@@ -16,9 +16,6 @@ class SupplierResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        Log::info($this->city);
-        Log::info('Schools', ['schools' => School::where('city', $this->city)]);
-
         return [
             'id' => $this->id,
             'name' => $this->name,

@@ -202,7 +202,7 @@ export default function Dashboard() {
                 'problem': problem || "",
             }
     
-            const response = apiClient.post('http://127.0.0.1:8000/api/school', data);
+            const response = apiClient.post('/api/school', data);
             closeModal();
     
             alert("Success!");
@@ -265,12 +265,12 @@ export default function Dashboard() {
                             <h2 className="text-[#435C72] text-lg font-bold">Report Calendar 2025</h2>
                             <div className="flex items-center space-x-2">
                                 <button className="p-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                    <svg xmlns="https://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
                                     </svg>                          
                                 </button>
                                 <button className="p-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                    <svg xmlns="https://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
                                     </svg>
                                 </button>
@@ -409,7 +409,7 @@ export default function Dashboard() {
             const currentData = formData[index];
             console.log("Submitting form data for school index", index, currentData);
             
-            apiClient.post('http://localhost:8000/api/supplier', currentData);
+            apiClient.post('/api/supplier', currentData);
         };
 
         function getProblemCounts(data: Supplier | null) {
